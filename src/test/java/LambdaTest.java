@@ -134,6 +134,21 @@ public class LambdaTest {
         Boolean isMatch = studentList.stream().allMatch(s -> s.getScore() > 10);
         System.out.println(isMatch);
 
+        //groupingBy
+        Map<Double, List<Student>> map = studentList.stream().collect(Collectors.groupingBy(Student::getScore));
+        System.out.println(JSON.toJSONString(map));
+
+        Map<Double, Long> map1 = studentList.stream().collect(Collectors.groupingBy(Student::getScore, Collectors.counting()));
+        System.out.println(JSON.toJSONString(map1));
+
+        //summarizing
+        DoubleSummaryStatistics  doubleSummaryStatistics=studentList.stream().collect(Collectors.summarizingDouble(Student::getScore));
+        System.out.println(doubleSummaryStatistics);
+
+        //partitioningBy
+        Map<Boolean, List<Student>> map2 = studentList.stream().collect(Collectors.partitioningBy(s -> s.getScore() > 94));
+        System.out.println(JSON.toJSONString(map2));
+
 
     }
 
