@@ -5,6 +5,7 @@ import org.junit.Test;
 
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -95,7 +96,7 @@ public class LambdaTest {
     public void testStream() {
         List<Integer> ids = studentList.parallelStream()
                 .filter(s -> s.getScore() > 93)
-                .sorted(Comparator.comparing(Student::getScore).reversed())//排序
+                .sorted(Comparator.comparing(Student::getScore).reversed())//排序   reversed()降序  不加升序
                 .map(Student::getId)//取出id
                 .collect(Collectors.toList());
         System.out.println(JSON.toJSONString(ids));
@@ -142,15 +143,58 @@ public class LambdaTest {
         System.out.println(JSON.toJSONString(map1));
 
         //summarizing
-        DoubleSummaryStatistics  doubleSummaryStatistics=studentList.stream().collect(Collectors.summarizingDouble(Student::getScore));
+        DoubleSummaryStatistics doubleSummaryStatistics = studentList.stream().collect(Collectors.summarizingDouble(Student::getScore));
         System.out.println(doubleSummaryStatistics);
 
         //partitioningBy
         Map<Boolean, List<Student>> map2 = studentList.stream().collect(Collectors.partitioningBy(s -> s.getScore() > 94));
         System.out.println(JSON.toJSONString(map2));
 
+        //map reduce
+        studentList.stream().map(student -> {
+            return student.getScore() * student.getId();
+        }).forEachOrdered(System.out::println);
+    }
+
+    @Test
+    public void mapReduce() {
+        double sum = studentList.stream().mapToDouble(s -> s.getScore()).sum();
+        System.out.println(sum);
+        DoubleSummaryStatistics doubleSummaryStatistics = studentList.stream().collect(Collectors.summarizingDouble(Student::getScore));
+        System.out.println(doubleSummaryStatistics);
+        Double sum2 = studentList.stream().collect(Collectors.summingDouble(Student::getScore));
+        System.out.println(sum2);
+
+        //map reduce
+        List<Double> list = studentList.stream().map(Student::getScore).collect(Collectors.toList());
+        System.out.println(list);
+        Double sum3 = list.stream().map(x -> x + 1).reduce((sum4,x) -> sum4 + x).get();
+        System.out.println(sum3);
+
+       Double sum4= studentList.stream().map(student -> {
+            return student.getScore()+1;
+        }).reduce((s,x)->s+x).get();
+        System.out.println(sum4);
 
     }
 
 
+    @Test
+    public void predicate(){
+        List<String> languages = Arrays.asList("Java","Python","scala","Shell","R");
+        System.out.println("Language starts with J: ");
+        filterTest(languages,x -> x.startsWith("J"));
+        System.out.println("\nLanguage ends with a: ");
+        filterTest(languages,x -> x.endsWith("a"));
+        System.out.println("\nAll languages: ");
+        filterTest(languages,x -> true);
+        System.out.println("\nNo languages: ");
+        filterTest(languages,x -> false);
+        System.out.println("\nLanguage length bigger three: ");
+        filterTest(languages,x -> x.length() > 4);
+    }
+    //Stream API的过滤方法也接受一个Predicate，这意味着可以将我们定制的 filter() 方法替换成写在里面的内联代码
+    public static void filterTest(List<String> languages, Predicate<String> condition) {
+        languages.stream().filter(x -> condition.test(x)).forEach(x -> System.out.println(x + " "));
+    }
 }
