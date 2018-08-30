@@ -5,6 +5,7 @@ import org.junit.Test;
 
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -101,6 +102,7 @@ public class LambdaTest {
                 .collect(Collectors.toList());
         System.out.println(JSON.toJSONString(ids));
 
+
         Double sum = studentList.stream().filter(s -> s.getId() > 4).mapToDouble(s -> s.getScore()).sum();
         System.out.println(sum);
         Double sum2 = studentList.stream().filter(s -> s.getId() > 4).mapToDouble(Student::getScore).sum();
@@ -154,6 +156,11 @@ public class LambdaTest {
         studentList.stream().map(student -> {
             return student.getScore() * student.getId();
         }).forEachOrdered(System.out::println);
+
+
+        //list to map
+        Map<Integer, Student> studentMap = studentList.stream().collect(Collectors.toMap(Student::getId, Function.identity()));
+        System.out.println(studentMap);
     }
 
     @Test
@@ -168,31 +175,32 @@ public class LambdaTest {
         //map reduce
         List<Double> list = studentList.stream().map(Student::getScore).collect(Collectors.toList());
         System.out.println(list);
-        Double sum3 = list.stream().map(x -> x + 1).reduce((sum4,x) -> sum4 + x).get();
+        Double sum3 = list.stream().map(x -> x + 1).reduce((sum4, x) -> sum4 + x).get();
         System.out.println(sum3);
 
-       Double sum4= studentList.stream().map(student -> {
-            return student.getScore()+1;
-        }).reduce((s,x)->s+x).get();
+        Double sum4 = studentList.stream().map(student -> {
+            return student.getScore() + 1;
+        }).reduce((s, x) -> s + x).get();
         System.out.println(sum4);
 
     }
 
 
     @Test
-    public void predicate(){
-        List<String> languages = Arrays.asList("Java","Python","scala","Shell","R");
+    public void predicate() {
+        List<String> languages = Arrays.asList("Java", "Python", "scala", "Shell", "R");
         System.out.println("Language starts with J: ");
-        filterTest(languages,x -> x.startsWith("J"));
+        filterTest(languages, x -> x.startsWith("J"));
         System.out.println("\nLanguage ends with a: ");
-        filterTest(languages,x -> x.endsWith("a"));
+        filterTest(languages, x -> x.endsWith("a"));
         System.out.println("\nAll languages: ");
-        filterTest(languages,x -> true);
+        filterTest(languages, x -> true);
         System.out.println("\nNo languages: ");
-        filterTest(languages,x -> false);
+        filterTest(languages, x -> false);
         System.out.println("\nLanguage length bigger three: ");
-        filterTest(languages,x -> x.length() > 4);
+        filterTest(languages, x -> x.length() > 4);
     }
+
     //Stream API的过滤方法也接受一个Predicate，这意味着可以将我们定制的 filter() 方法替换成写在里面的内联代码
     public static void filterTest(List<String> languages, Predicate<String> condition) {
         languages.stream().filter(x -> condition.test(x)).forEach(x -> System.out.println(x + " "));
